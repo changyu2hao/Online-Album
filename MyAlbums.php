@@ -74,10 +74,17 @@
                     //$Course1=$pStmt1->fetchAll();
                     
                     foreach ($Album as $row): ?>
+                        <?php 
+                            $AlbumId=$row["Album_Id"];
+                            $sqlstatementpicturescount="Select count(*) from Picture where Album_Id=:Album_Id";
+                            $pStmtpicturescount=$myPdo-> prepare($sqlstatementpicturescount);
+                            $pStmtpicturescount ->execute( [ 'Album_Id' => $AlbumId] );
+                            $PictureNumber = $pStmtpicturescount->fetchColumn();
+                        ?>
                     <tr>                       
                         <td scope="col"><?php echo $row["Title"] ?></td>
                             <td scope="col"><?php echo $row["Date_Updated"] ?></td>
-                            <td scope="col"><?php echo $row["Title"] ?></td>
+                            <td scope="col"><?php echo $PictureNumber ?></td>
                             <td scope="col">
                             <?php
                                 $Album_Id=$row['Album_Id'];
