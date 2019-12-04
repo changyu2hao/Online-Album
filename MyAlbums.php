@@ -12,6 +12,10 @@
         <?php 
         include 'ProjectCommon/Functions.php';
         $Userid=$_SESSION["Userid"];
+        if(empty($Userid))
+        {
+            header("Location: Login.php"); 
+        }
         $dbConnection = parse_ini_file("db_connection.ini");
         extract($dbConnection);
         $myPdo = new PDO($dsn, $user, $password);
@@ -21,9 +25,16 @@
         $ButtonSubmit=$_POST['Save'];
         $name = $pStmtname->fetchColumn();
         $accessibility=$_POST['accessibility'];
-        if($_POST)
+        if($_GET['action']=='delete'&&isset($_GET['id']))
         {
-            echo haha;
+            $AlbumId=$_GET['id'];
+            $sqlDeletePic="Delete from picture Where Album_Id =:Album_Id";
+            $stmt = $myPdo->prepare($sqlDeletePic);
+            $stmt->execute( [ 'Album_Id' => $AlbumId] );
+            $deleteAlbumn="Delete from album where Album_Id=:Album_Id";
+            $stmt1=$myPdo->prepare($deleteAlbumn);
+            $stmt1->execute( [ 'Album_Id' => $AlbumId] );
+                       
         }
         if(isset($ButtonSubmit))
         {
@@ -102,7 +113,7 @@
                             <?php endforeach ?>                     
                             </select>                                
                             </td>
-                            <td scope="col"><a href="http://localhost/ProjectPHP/MyAlbums.php">delete</a></td>
+                            <td scope='col'><a href='MyAlbums.php?action=delete&id=<?php echo $Album_Id?>' onclick='return myFunctionDelete()'/>Delete</td>
                     </tr>
                     <?php endforeach ?>
                     </tbody> 
@@ -117,4 +128,17 @@
             </form>
         </div>
     </body>
+    <script>
+    function myFunctionDelete() 
+    {
+        if(confirm("The selected album and its pictures will be deleted!"))
+        {
+            return true;
+        }
+        else
+        {
+            return false; 
+        }      
+    }
+    </script>
 </html>

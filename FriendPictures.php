@@ -8,21 +8,39 @@
     //updates the session so the user can come back to this page after authentication
     if ($_SESSION['Userid'] == null)
     { 
-        $_SESSION['activePage'] = "MyPictures.php";        
+        //$_SESSION['activePage'] = "FriendPictures.php"; - should it redirect to here? I guess not
         exit(header('Location: Login.php'));
     }
-    $Userid=$_SESSION["Userid"];
+    $Userid = $_SESSION['Userid'];
     $dbConnection = parse_ini_file("db_connection.ini");        	
     extract($dbConnection);
     $myPdo = new PDO($dsn, $user, $password);
-    //to throw error messages to the user
-    $myPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    //Retrieves available album options from database
-    $sql = "SELECT Album_Id, title FROM album WHERE album.Owner_Id = :userID ";
-    $pStmt = $myPdo->prepare($sql);
-    $pStmt->execute(array(userID => $Userid));
-    $albums = $pStmt->fetchAll();
-    
+    if(isset($_GET['id'])){ // friendID is required to load album information
+        $friend_id = $_GET['id'];
+        //Verifies if friend ID is from an actual friend - if query returns empty, user is not a friend
+        $sql = "SELECT Name, userId FROM user "
+              ."WHERE  EXISTS (SELECT 1 "
+                             ."FROM friendship "
+                             ."WHERE (friendship.Friend_RequesterId = :friendID AND friendship.Friend_RequesteeId = :userID) "
+                             ."OR (friendship.Friend_RequesterId = :userID AND friendship.Friend_RequesteeId = :friendID) "
+                             ."AND Status = 'accepted') "
+                             ."AND UserId = :friendID";
+        $pStmt = $myPdo->prepare($sql);
+        $pStmt->execute(array(userID => $Userid, friendID => $friend_id));
+        $friendInfo = $pStmt->fetch();
+        if($friendInfo != "") { $_SESSION['friendInfo'] = $friendInfo; }
+    } 
+    if($_SESSION['friendInfo']){
+        $friendInfo = $_SESSION['friendInfo'];
+    }
+    if($friendInfo != ""){
+        $_SESSION['friendInfo'] = $friendInfo; //store in session
+        //Retrieves available album options from database
+        $sql = "SELECT album_id, title FROM album WHERE album.Owner_Id = :userID AND accessibility_code = 'shared'";
+        $pStmt = $myPdo->prepare($sql);
+        $pStmt->execute(array(userID => $friendInfo[1]));
+        $albums = $pStmt->fetchAll();
+    }
     if(count($albums) > 0){
         $selectAlbum = $albums[0][0]; //initial selection
         if(isset($_POST['selectAlbum'])){
@@ -39,7 +57,6 @@
         } 
         $imgs = Picture::getPictures($myPdo, $selectAlbum);
         $idx = 0; //initial selection
-        
         if(!empty($imgs)){
             if(isset($_POST['selectedImage'])){
                 $selected_img_id = intval($_POST['selectedImage']);
@@ -58,41 +75,17 @@
             if(isset($_POST['addComment'])){
                 if($_POST['commentTxt']!= ""){
                     //inserts picture comment in DB
-                    try{
-                        $sql = "INSERT INTO comment(Author_Id, Picture_Id, Comment_Text, Date) "
-                            ."VALUES (:userId, :pictureId, :commentTxt, NOW())";
-                        $pStmt = $myPdo->prepare($sql);
-                        $pStmt->execute(array(
-                            ':userId' => $userIdTxt,
-                            ':pictureId' => $selected_img_id,
-                            ':commentTxt' => $_POST['commentTxt']));
-                        $pStmt->commit;
-                        exit(header('Location: MyPictures.php?action=picture&id='.$selectAlbum.'&pic='.$selected_img_id));
-                    } catch(PDOException $e) {
-                        $commentError = $e->getMessage();
-                    }
+                    $sql = "INSERT INTO comment(Author_Id, Picture_Id, Comment_Text, Date) "
+                        ."VALUES (:userId, :pictureId, :commentTxt, NOW())";
+                    $pStmt = $myPdo->prepare($sql);
+                    $pStmt->execute(array(
+                        ':userId' => $Userid,
+                        ':pictureId' => $selected_img_id,
+                        ':commentTxt' => $_POST['commentTxt']));
+                    $pStmt->commit;
+                    exit(header('Location: FriendPictures.php?id='.$friendInfo[1].'&action=picture&id='.$selectAlbum.'&pic='.$selected_img_id));
                 }else{
                     $commentError = "Comment cannot be blank!";
-                }
-            } else if(isset($_POST['action'])){
-                //Rotate, downloads or deletes the selected Image, according to the informed action
-                
-                switch ($_POST['action']) {
-                    case 'rotateLeft':
-                        $imgs[$idx]->rotatePicture(90);
-                        break;
-                    case 'rotateRight':
-                        $imgs[$idx]->rotatePicture(-90);
-                        break;
-                    case 'download':
-                        $file = $imgs[$idx]->downloadFile();
-                        break;
-                    case 'delete':
-                        $commentError = $imgs[$idx]->deleteFile($myPdo);
-                        if($commentError == ""){ //successfully deleted the file
-                            exit(header('Location: MyPictures.php?action=album&id='.$selectAlbum));
-                        }
-                        break;
                 }
             }
             //gets the file path to display as main picture
@@ -104,13 +97,13 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12 text-center">
-                <h1>My Pictures</h1>
+                <h1><?php echo $friendInfo[0]; ?>'s Pictures</h1>
                 <br/>
             </div>
         </div>
-        <form action=MyPictures.php method="post">
+        <form action=FriendPictures.php method="post">
             <div class="row">
-                <div class="col-lg-1 col-md-2"></div>
+            <div class="col-lg-1 col-md-2"></div>
                 <div class='col-lg-5 col-md-5'>
                     <select name='selectAlbum' class='form-control' onchange="this.form.submit()">
                         <?php
@@ -130,14 +123,14 @@
                 if(!empty($imgs)){
             ?>
                 <div class="row">
-                    <div class="col-lg-3 col-md-3"></div>
+                <div class="col-lg-3 col-md-3"></div>
                     <div class='col-lg-4 col-md-4'>
                         <h2><?php echo $imgs[$idx]->getTitle();?></h2>
                     </div>
                 </div>
             <br/>
             <div class="container-fluid">
-                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
                     <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
                     <div class="img-container col-lg-10 col-md-10 col-sm-10 col-xs-10">
                         <img src="<?php echo $imageFilePath;?>" />
@@ -156,6 +149,7 @@
                             </button>
                         </div>
                     </div>
+                    
                     <div class="thumbnails" >
                         <div class="col-lg-10 col-md-12 col-sm-12 col-xs-12" style="overflow-x: auto; white-space: nowrap;">
                             <?php
@@ -220,24 +214,23 @@
         </form>
         <div class="row">
             <div class="col-lg-12 text-center">
-                <h4>This album does not have any pictures yet. Click <a href="UploadPictures.php">here</a> to Upload Pictures.</h4>
-
+                <h4>This album does not have any pictures yet.</h4>
             </div>
         </div>
     </div>
 <?php       
         }
-    } else{ //If there is no album yet
+    } else{ //If the Friend does not have any album shared with the User yet
 ?>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12 text-center">
-                    <h1>My Pictures</h1>
+                    <h1>Friend's Pictures</h1>
                 <br/>
             </div>
             <div class="row">
                 <div class="col-lg-12 text-center">
-                    <h4>You don't have an album yet. Click <a href="AddAlbum.php">here</a> to Create a new Album</h4>
+                    <h4>This Friend doesn't have any album shared with you yet.</h4>
                 </div>
             </div>
         </div>

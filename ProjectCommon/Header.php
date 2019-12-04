@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<?php
+session_start();
+?>
 <html lang="en" style="position: relative; min-height: 100%;">
 <head>
 <title>Online Course Registration</title>
@@ -27,7 +30,7 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                <li class="active"><a href="Index.php">Home </a></li>
-               <li><a href="AddAlbum.php">My Friends</a></li>
+               <li><a href="MyFriends.php">My Friends</a></li>
                <li><a href="MyAlbums.php">My Albums</a></li>
                <li><a href="MyPictures.php">My pictures</a></li>
                <li><a href="UploadPictures.php">Upload Pictures</a></li>
@@ -35,9 +38,10 @@
                {
                    echo '<a href="Logout.php">Log out</a>';                  
                }
-               else{
+               else
+               {
                    echo '<a href="Login.php">Log in</a>';
-               }?></li> 
+               }?></li>
             </ul>
         </div>
       </div>  
