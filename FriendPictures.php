@@ -87,9 +87,29 @@
                 }else{
                     $commentError = "Comment cannot be blank!";
                 }
+            }else if(isset($_POST['action'])){
+                //Rotate, downloads or deletes the selected Image, according to the informed action
+                
+                switch ($_POST['action']) {
+                    case 'rotateLeft':
+                        $imgs[$idx]->rotatePicture(90);
+                        break;
+                    case 'rotateRight':
+                        $imgs[$idx]->rotatePicture(-90);
+                        break;
+                    case 'download':
+                        $file = $imgs[$idx]->downloadFile();
+                        break;
+                    case 'delete':
+                        $commentError = $imgs[$idx]->deleteFile($myPdo);
+                        if($commentError == ""){ //successfully deleted the file
+                            exit(header('Location: MyPictures.php?action=album&id='.$selectAlbum));
+                        }
+                        break;
+                }
             }
             //gets the file path to display as main picture
-            $imageFilePath = $imgs[$idx]->getAlbumFilePath();
+            $imageFilePathFr = $imgs[$idx]->getAlbumFilePath();
             $selected_img_id = $imgs[$idx]->getId();
         }
 ?>
@@ -133,7 +153,7 @@
             <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
                     <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
                     <div class="img-container col-lg-10 col-md-10 col-sm-10 col-xs-10">
-                        <img src="<?php echo $imageFilePath;?>" />
+                        <img src="<?php echo $imageFilePathFr;?>" />
                         <div class="menu">
                             <button type="submit" name="action" class="btn-glyph" value="rotateLeft">
                                 <i class="glyphicon glyphicon-repeat gly-flip-horizontal"></i>
@@ -154,14 +174,16 @@
                         <div class="col-lg-10 col-md-12 col-sm-12 col-xs-12" style="overflow-x: auto; white-space: nowrap;">
                             <?php
                                 foreach ($imgs as $img) {
+                                    $imgid=$img->getId();
                             ?>
+                            <a href="FriendPictures.php?action=picture&id=<?php echo $selectAlbum ?>&pic=<?php echo $imgid ?>">
                                     <img src=<?php echo $img->getThumbnailFilePath();?>
                                     name="imgThumbnail"
                                     id=<?php echo $img->getId();
                                     if($img->getId() == $selected_img_id){ //highlight selected image
                                         echo' style="border: 3px solid blue;"';
                                     }
-                                    ?> style="padding: 5px; white-space: nowrap;">
+                                    ?> style="padding: 5px; white-space: nowrap;"></a>
                             <?php
                                 }
                             ?>

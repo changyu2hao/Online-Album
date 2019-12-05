@@ -8,8 +8,7 @@
     //updates the session so the user can come back to this page after authentication
     if ($_SESSION['Userid'] == null)
     { 
-        $_SESSION['activePage'] = "MyPictures.php";        
-        exit(header('Location: Login.php'));
+        header("Location: Login.php"); 
     }
     $Userid=$_SESSION["Userid"];
     $dbConnection = parse_ini_file("db_connection.ini");        	
@@ -63,7 +62,7 @@
                             ."VALUES (:userId, :pictureId, :commentTxt, NOW())";
                         $pStmt = $myPdo->prepare($sql);
                         $pStmt->execute(array(
-                            ':userId' => $userIdTxt,
+                            ':userId' => $Userid,
                             ':pictureId' => $selected_img_id,
                             ':commentTxt' => $_POST['commentTxt']));
                         $pStmt->commit;
@@ -111,7 +110,7 @@
         <form action=MyPictures.php method="post">
             <div class="row">
                 <div class="col-lg-1 col-md-2"></div>
-                <div class='col-lg-5 col-md-5'>
+                <div class='col-lg-5 col-md-10'>
                     <select name='selectAlbum' class='form-control' onchange="this.form.submit()">
                         <?php
                             foreach($albums as $row){
@@ -142,16 +141,16 @@
                     <div class="img-container col-lg-10 col-md-10 col-sm-10 col-xs-10">
                         <img src="<?php echo $imageFilePath;?>" />
                         <div class="menu">
-                            <button type="submit" name="action" class="btn-glyph" value="rotateLeft">
+                            <button type="submit" name="action" class="btn-primary" value="rotateLeft">
                                 <i class="glyphicon glyphicon-repeat gly-flip-horizontal"></i>
                             </button>
-                            <button type="submit" name="action" class="btn-glyph" value="rotateRight">
+                            <button type="submit" name="action" class="btn-primary" value="rotateRight">
                                 <span class="glyphicon glyphicon-repeat"></span>
                             </button>
-                            <button type="submit" name="action" class="btn-glyph" value="download">
+                            <button type="submit" name="action" class="btn-primary" value="download">
                                 <span class="glyphicon glyphicon-download-alt"></span>
                             </button>
-                            <button type="submit" name="action" class="btn-glyph" value="delete">
+                            <button type="submit" name="action" class="btn-primary" value="delete">
                                 <span class="glyphicon glyphicon-trash"></span>
                             </button>
                         </div>
@@ -160,14 +159,16 @@
                         <div class="col-lg-10 col-md-12 col-sm-12 col-xs-12" style="overflow-x: auto; white-space: nowrap;">
                             <?php
                                 foreach ($imgs as $img) {
+                                    $imgid=$img->getId();
                             ?>
+                            <a href="MyPictures.php?action=picture&id=<?php echo $selectAlbum ?>&pic=<?php echo $imgid ?>">
                                     <img src=<?php echo $img->getThumbnailFilePath();?>
                                     name="imgThumbnail"
                                     id=<?php echo $img->getId();
                                     if($img->getId() == $selected_img_id){ //highlight selected image
                                         echo' style="border: 3px solid blue;"';
                                     }
-                                    ?> style="padding: 5px; white-space: nowrap;">
+                                    ?> style="padding: 5px; white-space: nowrap;"></a>
                             <?php
                                 }
                             ?>
@@ -204,7 +205,7 @@
                     </div>
                     <div class='row'>
                         <div class='col-lg-6 col-md-8 col-sm-12 col-xs-12 text-left'>
-                            <button type='submit' name='addComment' class='btn btn-block btn-primary'>Add Comment</button>
+                            <button type='submit' name='addComment' class='btn btn-block btn-success'>Add Comment</button>
                         </div>
                         <div class='col-lg-6 col-md-12 col-sm-12 col-xs-12 text-left' style="color: red;"><?php echo $commentError;?></div>
                     </div>
@@ -217,10 +218,9 @@
 <?php
         } else{ //If there is no pictures associated with this album
 ?>
-        </form>
         <div class="row">
             <div class="col-lg-12 text-center">
-                <h4>This album does not have any pictures yet. Click <a href="UploadPictures.php">here</a> to Upload Pictures.</h4>
+                <h4>There is no pictures in this albumn. Click <a href="UploadPictures.php">here</a> to Upload Pictures.</h4>
 
             </div>
         </div>

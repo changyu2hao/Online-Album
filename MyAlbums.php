@@ -28,6 +28,18 @@
         if($_GET['action']=='delete'&&isset($_GET['id']))
         {
             $AlbumId=$_GET['id'];
+            $sqlselect="select Picture_Id from Picture where Album_Id=:Album_Id";
+            $stmt3= $myPdo->prepare($sqlselect);
+            $stmt3->execute( [ 'Album_Id' => $AlbumId] );
+            $TemID = $stmt3->fetchAll();
+            foreach($TemID as $PerID)
+            {
+                $sqlDeleteComment="Delete from Comment where Picture_Id=:Picture_Id && Author_Id=:Author_Id";
+                $stmt2= $myPdo->prepare($sqlDeleteComment);
+                $stmt2->execute( [ 'Picture_Id' => $PerID['Picture_Id'],'Author_Id' => $Userid] );
+                
+            }
+            
             $sqlDeletePic="Delete from picture Where Album_Id =:Album_Id";
             $stmt = $myPdo->prepare($sqlDeletePic);
             $stmt->execute( [ 'Album_Id' => $AlbumId] );
@@ -86,10 +98,10 @@
                     
                     foreach ($Album as $row): ?>
                         <?php 
-                            $AlbumId=$row["Album_Id"];
+                            $Album_Id=$row["Album_Id"];
                             $sqlstatementpicturescount="Select count(*) from Picture where Album_Id=:Album_Id";
                             $pStmtpicturescount=$myPdo-> prepare($sqlstatementpicturescount);
-                            $pStmtpicturescount ->execute( [ 'Album_Id' => $AlbumId] );
+                            $pStmtpicturescount ->execute( [ 'Album_Id' => $Album_Id] );
                             $PictureNumber = $pStmtpicturescount->fetchColumn();
                         ?>
                     <tr>                       
@@ -98,7 +110,7 @@
                             <td scope="col"><?php echo $PictureNumber ?></td>
                             <td scope="col">
                             <?php
-                                $Album_Id=$row['Album_Id'];
+                                //$Album_Id=$row['Album_Id'];
                                 $sqlstatementAcc='select Accessibility_Code,Description FROM Accessibility';
                                 $pStmtAcc = $myPdo -> prepare($sqlstatementAcc);
                                 $pStmtAcc ->execute();

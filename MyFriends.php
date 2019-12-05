@@ -6,14 +6,21 @@
     //creating a session to make user come back here after authentitcated
      if ($_SESSION['Userid'] == null)
     { 
-        $_SESSION['activePage'] = "MyFriends.php";        
-        exit(header('Location: Login.php'));
+        header("Location: Login.php"); 
     }
-    
+        $Userid=$_SESSION['Userid'];
+        $dbConnection = parse_ini_file("db_connection.ini");
+        extract($dbConnection);
+        $myPdo = new PDO($dsn, $user, $password);
+        $sqlstatementname='select Name FROM User where UserId=:Id';//staement for the name
+        $pStmtname = $myPdo -> prepare($sqlstatementname);
+        $pStmtname ->execute( [ 'Id' => $Userid] );
+        $ButtonSubmit=$_POST['Save'];
+        $name = $pStmtname->fetchColumn();
     //Connection to DBO            
-    $dbConnection = parse_ini_file("db_connection.ini");        	
-    extract($dbConnection);
-    $myPdo = new PDO($dsn, $user, $password);  
+    //$dbConnection = parse_ini_file("db_connection.ini");        	
+    //extract($dbConnection);
+    //$myPdo = new PDO($dsn, $user, $password);  
     
     //Checking friends per user
     //getting a list of userId's where friendshipstatus = accepted
@@ -110,7 +117,7 @@
         <br>
         <h1>My Friends</h1>
         <br>
-        <h4>Welcome <b><?php print $_SESSION['nameTxt'];?></b>! (Not you? Change your session <a href="Login.php">here</a>)</h4>
+        <h4>Welcome <b><?php print $name;?></b>! (Not you? Change your session <a href="Login.php">here</a>)</h4>
         <br><br>
         <form method='post' action=MyFriends.php> 
             <!--First table: FRIENDS-->
@@ -163,7 +170,7 @@
         <div class='form-group row'>               
             <label for='' class='col-lg-7 col-form-label'><b></b> </label>            
             <div class='col-lg-3'>                    
-            <button type='submit' name='defriendBtn' class='btn btn-primary col-lg-5' onclick='return confirm("The selected friend will be defriended!")'>Defriend Selected</button>  
+            <button type='submit' name='defriendBtn' class='btn btn-warning col-lg-5' onclick='return confirm("The selected friend will be defriended!")'>Defriend Selected</button>  
             </div> 
         </div>     
 
@@ -205,9 +212,9 @@
         <div class='form-group row'>               
             <label for='' class='col-lg-5 col-form-label'><b></b> </label>            
             <div class='col-lg-7'>                    
-            <button type='submit' name='acceptBtn' class='btn btn-primary col-lg-2'>Accept Selected</button>  
+            <button type='submit' name='acceptBtn' class='btn btn-success col-lg-2'>Accept Selected</button>  
                 <div class='col-lg-3'>                    
-                    <button type='submit' name='denyBtn' class='btn btn-primary ' onclick='return confirm("The selected request will be denied!")'>Deny Selected</button>
+                    <button type='submit' name='denyBtn' class='btn btn-warning ' onclick='return confirm("The selected request will be denied!")'>Deny Selected</button>
                 </div> 
             </div> 
         </div>

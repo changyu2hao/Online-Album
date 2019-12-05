@@ -32,19 +32,13 @@
         extract($dbConnection);
         $myPdo = new PDO($dsn, $user, $password); 
         //checking if ID exists in application         
-        $sqlStatement = 'SELECT * FROM User WHERE UserId = :PlaceHolderUserID ';
+        $sqlStatement = 'SELECT * FROM User WHERE UserId = :UserID ';
         $pStmt = $myPdo->prepare($sqlStatement);       
-        $pStmt ->execute([':PlaceHolderUserID' => $friendIdTxt]);      
-        $chkAccount = $pStmt->fetch();        
+        $pStmt ->execute([':UserID' => $friendIdTxt]);      
+        $ExsitUser = $pStmt->fetch();        
         
         //user cannot send a request to someone who is already a friend
-        //a) if user is a requester and invite was accepeted:
-        $sqlStatement = 'SELECT * FROM friendship '
-                . 'WHERE Friend_RequesterId = :resquesterId AND Friend_RequesteeId = :requesteeId AND Status = :status';
-        $pStmt = $myPdo->prepare($sqlStatement);        
-        $pStmt ->execute(array(':resquesterId' => $_SESSION['Userid'] , ':requesteeId' => $_SESSION['friendIdTxt'], ':status' => 'accepted' ));      
-        $requester = $pStmt->fetch(); 
-        
+        //a) if user is a requester and invite was accepeted:      
         //b) if user is a requestee and invite was accepeted
         $sqlStatement = 'SELECT * FROM friendship '
                 . 'WHERE Friend_RequesterId = :resquesterId AND Friend_RequesteeId = :requesteeId AND Status = :status';
@@ -52,22 +46,28 @@
         $pStmt ->execute(array(':resquesterId' => $_SESSION['friendIdTxt'] , ':requesteeId' => $_SESSION['Userid'] , ':status' => 'accepted' ));      
         $requestee = $pStmt->fetch(); 
         
+        $sqlStatement = 'SELECT * FROM friendship '
+                . 'WHERE Friend_RequesterId = :resquesterId AND Friend_RequesteeId = :requesteeId AND Status = :status';
+        $pStmt = $myPdo->prepare($sqlStatement);        
+        $pStmt ->execute(array(':resquesterId' => $_SESSION['Userid'] , ':requesteeId' => $_SESSION['friendIdTxt'], ':status' => 'accepted' ));      
+        $requester = $pStmt->fetch(); 
+        
         //if user is a requestee and invite is pending:
         $sqlStatement = 'SELECT * FROM friendship '
                 . 'WHERE Friend_RequesterId = :friend AND Friend_RequesteeId = :user AND Status = :status';
         $pStmt = $myPdo->prepare($sqlStatement);        
         $pStmt ->execute(array(':user' => $_SESSION['Userid'] , ':friend' => $_SESSION['friendIdTxt'], ':status' => 'request' ));      
-        $pending = $pStmt->fetch();  
+        $waiting = $pStmt->fetch();  
         
         //if user is a requester and invite is pending:
         $sqlStatement = 'SELECT * FROM friendship '
                 . 'WHERE Friend_RequesterId = :user AND Friend_RequesteeId = :friend AND Status = :status';
         $pStmt = $myPdo->prepare($sqlStatement);        
         $pStmt ->execute(array(':user' => $_SESSION['Userid'] , ':friend' => $_SESSION['friendIdTxt'], ':status' => 'request' ));      
-        $pendingFriend = $pStmt->fetch(); 
+        $waitingFriend = $pStmt->fetch(); 
         
         //checking if this request was already sent
-        if ($pendingFriend != null){
+        if ($waitingFriend != null){
             $validateError = "You can't send this request twice. Invitation is still pending";
         }       
         else {    
@@ -78,7 +78,7 @@
             $identity = $pStmt->fetch();
             
             //if user is not in social media yet
-            if ($chkAccount == null){
+            if ($ExsitUser == null){
                 $validateError = "User is not in this social media yet!";
             }       
             //user cannot send a friend request to himself/herself
@@ -91,7 +91,7 @@
             }
             //If A sends a friend request to B, while A has a friend request from B 
             //waiting for A to accept, A and B become friends.
-            else if ($pending != null)  {
+            else if ($waiting != null)  {
                 //update requestee status
                 $sqlStatement = "UPDATE friendship SET status = 'accepted' "
                     . "WHERE Friend_RequesterId = :requesteeId AND Friend_RequesteeId = :requesterId "; 

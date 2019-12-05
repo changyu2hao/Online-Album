@@ -11,7 +11,7 @@
         $_SESSION['activePage'] = "UploadPictures.php";        
         exit(header('Location: Login.php'));
     }
-    $userIdTxt = $_SESSION['Userid'];
+    $userId = $_SESSION['Userid'];
     $dbConnection = parse_ini_file("db_connection.ini");        	
     extract($dbConnection);
     $myPdo = new PDO($dsn, $user, $password);
@@ -20,7 +20,7 @@
     //Retrieves available album options from database
     $sql = "SELECT album_id, title FROM album WHERE album.Owner_Id = :userID ";
     $pStmt = $myPdo->prepare($sql);
-    $pStmt->execute(array(userID => $userIdTxt));
+    $pStmt->execute(array(userID => $userId));
     $albums = $pStmt->fetchAll();
     //Clear button:
     if(isset($_POST['clear'])){
@@ -36,7 +36,7 @@
             if ($fileError == ""){ //files are valid to upload
                 $total = count($_FILES['fileUpload']['name']);
                 //inserts picture reference in DB
-                $iSql = "INSERT INTO picture(album_id, fileName, title, description, date_added) "
+                $insertSql = "INSERT INTO picture(album_id, fileName, title, description, date_added) "
                        ."VALUES(:albumId, :fileName, :title, :description, :date_added)";
                 
                 $uSql = "UPDATE album set date_updated = :dateUpdated WHERE album_id = :albumId";
@@ -44,7 +44,7 @@
                     for ($i=0; $i < $total; $i++) {
                         //gets file extension
                         $ext = pathinfo($_FILES['fileUpload']['name'][$i], PATHINFO_EXTENSION);
-                        $pStmt = $myPdo->prepare($iSql);
+                        $pStmt = $myPdo->prepare($insertSql);
                         $pStmt->execute(array(
                             ':albumId' => $uploadAlbum,
                             ':fileName' => $ext,
@@ -150,12 +150,13 @@
             <div class='row'>
                 <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3"></div>
                 <div class='col-lg-2 col-md-2 col-sm-2 col-xs-4 text-left'>
-                    <button type='submit' name='submit' class='btn btn-block btn-primary'>Submit</button>
+                    <button type='submit' name='submit' class='btn btn-block btn-success'>Submit</button>
                 </div>
                 <div class='col-lg-2 col-md-2 col-sm-2 col-xs-4 text-left'>
-                    <button type='submit' name='clear' class='btn btn-block btn-primary'>Clear</button>
+                    <button type='submit' name='clear' class='btn btn-block btn-warning'>Clear</button>
                 </div>
             </div>
+            <br>
         </form>
     </div>
 <?php
