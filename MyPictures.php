@@ -17,7 +17,7 @@
     //to throw error messages to the user
     $myPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     //Retrieves available album options from database
-    $sql = "SELECT Album_Id, title FROM album WHERE album.Owner_Id = :userID ";
+    $sql = "SELECT Album_Id, title,Date_Updated FROM album WHERE album.Owner_Id = :userID ";
     $pStmt = $myPdo->prepare($sql);
     $pStmt->execute(array(userID => $Userid));
     $albums = $pStmt->fetchAll();
@@ -119,7 +119,7 @@
                                 if ($row[0] == $selectAlbum){
                                     echo "selected='selected'";
                                 }
-                                echo ">" . $row[1] . "</option>";
+                                echo ">" . $row[1] . " - updated on ". $row[2]."</option>";
                             }
                         ?>
                     </select>
@@ -175,7 +175,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 side-comments">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 side-comments sidetextbox">
                     <div class="comments-list">
                     <?php
                         if($imgs[$idx]->getDescription()){
@@ -221,7 +221,6 @@
         <div class="row">
             <div class="col-lg-12 text-center">
                 <h4>There is no pictures in this albumn. Click <a href="UploadPictures.php">here</a> to Upload Pictures.</h4>
-
             </div>
         </div>
     </div>
