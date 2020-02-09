@@ -8,3 +8,5 @@
 ### Users are able to select the albumn and choose the picture.
 ![Screenshot (132)](https://user-images.githubusercontent.com/43207918/74094742-34e1bf80-4ab4-11ea-959f-587707dc946f.png)
 
+### Users can select the picture from all the pictures in the albumn and rotate it.
+![Screenshot (134)](https://user-images.githubusercontent.com/43207918/74094785-c05b5080-4ab4-11ea-8c2d-84f584e46a46.png)
