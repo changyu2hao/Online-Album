@@ -5,5 +5,6 @@
 ### Album page shows diffrent albumn the user has and the attribute of the albumn
 ![Screenshot (131)](https://user-images.githubusercontent.com/43207918/74094704-948b9b00-4ab3-11ea-87f3-aa2c5e8927cd.png)
 
-
+### Users are able to select the albumn and choose the picture.
+![Screenshot (132)](https://user-images.githubusercontent.com/43207918/74094742-34e1bf80-4ab4-11ea-959f-587707dc946f.png)
 
