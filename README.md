@@ -14,3 +14,5 @@
 ### Users can choose the albumn and upload the a picture to the certain albumn.
 ![Screenshot (135)](https://user-images.githubusercontent.com/43207918/74094793-04e6ec00-4ab5-11ea-8659-3b789af0724d.png)
 
+### User can send friend request to others and if other user send friend request to you, it will show below.
+![Screenshot (136)](https://user-images.githubusercontent.com/43207918/74094816-7aeb5300-4ab5-11ea-89cb-897379491b96.png)
