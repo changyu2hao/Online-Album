@@ -10,3 +10,7 @@
 
 ### Users can select the picture from all the pictures in the albumn and rotate it.
 ![Screenshot (134)](https://user-images.githubusercontent.com/43207918/74094785-c05b5080-4ab4-11ea-8c2d-84f584e46a46.png)
+
+### Users can choose the albumn and upload the a picture to the certain albumn.
+![Screenshot (135)](https://user-images.githubusercontent.com/43207918/74094793-04e6ec00-4ab5-11ea-8659-3b789af0724d.png)
+
