@@ -11,7 +11,7 @@ A tool to help people share lovely photos and build social network based on the 
 ![Screenshot (130)](https://user-images.githubusercontent.com/43207918/74094654-d7993e80-4ab2-11ea-8e4b-bc3a83200eb8.png)
 
 ## My Albums Page
-* Album page shows diffrent albumn the belonging to the user.
+* Album page shows diffrent albumn belonging to the user.
 * It shows the accessibility and the user can change it.
 ![Screenshot (131)](https://user-images.githubusercontent.com/43207918/74094704-948b9b00-4ab3-11ea-87f3-aa2c5e8927cd.png)
 
