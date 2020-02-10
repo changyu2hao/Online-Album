@@ -18,7 +18,7 @@ A tool to help people share lovely photos and build social network based on the 
 ## My Pictures Page
 * Users are able to select the album
 * Users can go through all the pictures in the album
-* Users can roate the picture if they want
+* Users can rotate the picture if they want
 ![Screenshot (132)](https://user-images.githubusercontent.com/43207918/74094742-34e1bf80-4ab4-11ea-959f-587707dc946f.png)
 
 ![Screenshot (134)](https://user-images.githubusercontent.com/43207918/74094785-c05b5080-4ab4-11ea-8c2d-84f584e46a46.png)
