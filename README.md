@@ -6,7 +6,8 @@ A tool to help people share lovely photos and build social network based on the 
 
 ## Log in Page
 * For user to log in and sign up.
-* Users' information are saved in database and passwords are encrypted by SHA1 Hash.  
+* Users' information are saved in database
+* Passwords are encrypted by SHA1 Hash.  
 ![Screenshot (130)](https://user-images.githubusercontent.com/43207918/74094654-d7993e80-4ab2-11ea-8e4b-bc3a83200eb8.png)
 
 ## My Albums Page
